@@ -32,5 +32,8 @@
     "--background-index",
     "--query-driver=**",
     "--compile-commands-dir=d:\\programming\\cpp_adept\\pocketcore\\build"
+  ],
+  "cSpell.words": [
+    "LOGI"
   ]
 }
