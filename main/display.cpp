@@ -195,11 +195,11 @@ esp_err_t Display::init()
     }
 
     // Data/Command
-    gpio_reset_pin(dc_); // GPIO_NUM_9
+    gpio_reset_pin(dc_);
     gpio_set_direction(dc_, GPIO_MODE_OUTPUT);
 
     // hardware reset pin
-    gpio_reset_pin(rst_); // GPIO_NUM_8
+    gpio_reset_pin(rst_);
     gpio_set_direction(rst_, GPIO_MODE_OUTPUT);
 
     gpio_set_level(rst_, 0); // ST7789 reset
@@ -319,12 +319,12 @@ void Display::draw_line(std::uint16_t color,
 
             x1 += sx;
 
-            progress += dy; // progress replaces dy/dx // shows how far we have already progressed toward the secondary axis
+            progress += dy; // progress replaces (dy)  /dx // shows how far we have already progressed toward the secondary axis
 
             if (progress * 2 >= dx) // (progress >= dx / 2.0) -> (progress / dx >= 0.5)
             {
                 y1 += sy;
-                progress -= dx; //
+                progress -= dx;
             }
         }
     }

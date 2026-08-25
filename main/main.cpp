@@ -1,14 +1,72 @@
 #include "esp_log.h"
-#include "esp_timer.h"
-
-#include <string>
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+#include "driver/gpio.h"
 
 #include "display.hpp"
+#include "button_driver.hpp"
+
+const char *to_string(Button btn)
+{
+    switch (btn)
+    {
+    case Button::up:
+        return "UP";
+    case Button::down:
+        return "DOWN";
+    case Button::left:
+        return "LEFT";
+    case Button::right:
+        return "RIGHT";
+    case Button::ok:
+        return "OK";
+    case Button::back:
+        return "BACK";
+    default:
+        return "UNKNOWN_BTN";
+    }
+}
+
+const char *to_string(ButtonEventType type)
+{
+    switch (type)
+    {
+    case ButtonEventType::press:
+        return "PRESS";
+    case ButtonEventType::release:
+        return "RELEASE";
+    case ButtonEventType::long_press:
+        return "LONG_PRESS";
+    default:
+        return "UNKNOWN_EVENT";
+    }
+}
 
 static const char *TAG{"PocketCore"};
 
 extern "C" void app_main()
 {
+    ButtonDriver buttons;
+    buttons.init();
+
+    while (true)
+    {
+        buttons.update();
+
+        while (true)
+        {
+            auto event = buttons.pop_event();
+            if (!event.has_value())
+                break;
+
+            ESP_LOGI(TAG, "button [ %s ] state is: %s", to_string(event->button), to_string(event->type));
+        }
+
+        vTaskDelay(pdMS_TO_TICKS(10));
+    }
+
+    /*
+
     // spi_device_handle_t display_handle;
     Display display{
         GPIO_NUM_11,
@@ -161,4 +219,6 @@ extern "C" void app_main()
         "POCKETCORE FPS: 60");
 
     ESP_LOGI(TAG, "Visual display tests completed");
+
+    */
 }
