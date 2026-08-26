@@ -29,7 +29,7 @@ void ButtonDriver::update()
             bool success = push_event(event);
             if (!success)
             {
-                ESP_LOGI(TAG, "Event not added. Queue full");
+                ESP_LOGW(TAG, "Event not added. Queue full");
             }
         }
     }

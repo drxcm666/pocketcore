@@ -130,6 +130,8 @@ void draw_default_item(Display &display, const MenuParameters &menu, std::size_t
 
 void draw_menu(Display &display, const MenuParameters &menu, std::size_t selected_index)
 {
+    display.fill_screen(0x0000);
+    
     for (std::size_t i = 0; i < menu_size; i++)
     {
         if (i == selected_index)
@@ -141,6 +143,12 @@ void draw_menu(Display &display, const MenuParameters &menu, std::size_t selecte
 
         draw_default_item(display, menu, i);
     }
+}
+
+void draw_startup_screen(Display &display)
+{
+    display.fill_screen(0x0000);
+    display.draw_text(0xFFFF, 50, 150, 2, "POCKETCORE\nv0.1");
 }
 
 extern "C" void app_main()
@@ -168,6 +176,9 @@ extern "C" void app_main()
     }
 
     ESP_LOGI(TAG, "System started! Initial selected menu: %zu", selected_index);
+
+    draw_startup_screen(display);
+    vTaskDelay(pdMS_TO_TICKS(1000));
 
     Screen current_screen{Screen::menu};
     MenuParameters menu{};
@@ -218,7 +229,6 @@ extern "C" void app_main()
                      current_screen == Screen::test)
             {
                 current_screen = Screen::menu;
-                display.fill_screen(0x0000);
                 draw_menu(display, menu, selected_index);
             }
         }

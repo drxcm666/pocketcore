@@ -212,7 +212,19 @@ static constexpr std::uint8_t glyph_minus[7] = {
     0b00000,
     0b00000};
 
+static constexpr std::uint8_t glyph_dot[7] = {
+    0b00000,
+    0b00000,
+    0b00000,
+    0b00000,
+    0b00000,
+    0b00000,
+    0b00100};
+
 static const char *TAG{"PocketCore"};
+
+static constexpr int width = 240;
+static constexpr int height = 320;
 
 Display::Display(gpio_num_t mosi,
                  gpio_num_t sclk,
@@ -240,7 +252,7 @@ esp_err_t Display::init()
     bus_config.quadhd_io_num = -1;
     bus_config.quadwp_io_num = -1;
 
-    bus_config.max_transfer_sz = 320 * 240 * 2; // RGB565 -> 16 bits = 2 bytes = 1 pixel
+    bus_config.max_transfer_sz = height * width * 2; // RGB565 -> 16 bits = 2 bytes = 1 pixel
 
     /* Initialize SPI controller No. 2 using the bus_config settings,
        automatically select DMA, and return the result of the operation */
@@ -367,7 +379,7 @@ void Display::set_window(std::uint16_t x1, std::uint16_t y1,
 
 void Display::draw_pixel(std::uint16_t color, int x, int y)
 {
-    if (x < 0 || x >= 240 || y < 0 || y >= 320)
+    if (x < 0 || x >= width || y < 0 || y >= height)
         return;
 
     set_window(x, y, x, y);
@@ -443,14 +455,14 @@ void Display::draw_line(std::uint16_t color,
 
 void Display::fill_screen(std::uint16_t color)
 {
-    set_window(0, 0, 239, 319);
+    set_window(0, 0, width - 1, height - 1);
 
-    static std::uint8_t line[240 * 2];
+    static std::uint8_t line[width * 2];
 
     std::uint8_t high = color >> 8;
     std::uint8_t low = color & 0xFF;
 
-    for (int x = 0; x < 240; ++x)
+    for (int x = 0; x < width; ++x)
     {
         // 0xF800 (16-bit) = red in RGB565
         line[x * 2] = high;
@@ -458,7 +470,7 @@ void Display::fill_screen(std::uint16_t color)
     }
     // line = [F8 00 F8 00 F8 00 F8 00 ... F8 00]
 
-    for (int y = 0; y < 320; ++y)
+    for (int y = 0; y < height; ++y)
     {
         send_data(line, sizeof(line));
     }
@@ -468,7 +480,7 @@ void Display::fill_rect(std::uint16_t color,
                         std::uint16_t x1, std::uint16_t y1,
                         std::uint16_t x2, std::uint16_t y2)
 {
-    if (x1 > x2 || y1 > y2 || x1 <= 0 || y1 <= 0 || x2 >= 240 || y2 >= 320)
+    if (x1 > x2 || y1 > y2 || x2 >= width || y2 >= height)
         return;
 
     set_window(x1, y1, x2, y2);
@@ -478,7 +490,7 @@ void Display::fill_rect(std::uint16_t color,
 
     /*  a buffer in RAM where temporarily store the colors of a
         single horizontal line of the display before sending them via SPI */
-    std::uint8_t line[240 * 2];
+    std::uint8_t line[width * 2];
 
     std::uint8_t color_high = color >> 8;
     std::uint8_t color_low = color & 0xFF;
@@ -537,12 +549,16 @@ static const std::uint8_t *get_glyph(char ch)
     {
         return glyph_minus;
     }
+    else if (ch == '.')
+    {
+        return glyph_dot;
+    }
 
     return nullptr;
 }
 
 void Display::draw_text(std::uint16_t color, int x, int y,
-                        std::uint8_t scale, const std::string_view text)
+                        std::uint8_t scale, std::string_view text)
 {
     int cursor_x = x;
     int cursor_y = y;
