@@ -6,6 +6,7 @@
 #include <cstdint>
 #include <cstddef>
 #include <string>
+#include <string_view>
 
 class Display
 {
@@ -31,7 +32,7 @@ public:
     esp_err_t init();
     void draw_pixel(std::uint16_t color, int x, int y);
     void draw_line(std::uint16_t color, int x1, int y1, int x2, int y2);
-    void draw_text(std::uint16_t color, int x, int y, std::uint8_t scale, const std::string &text);
+    void draw_text(std::uint16_t color, int x, int y, std::uint8_t scale, const std::string_view text);
     void fill_screen(std::uint16_t color);
     void fill_rect(std::uint16_t color,
                    std::uint16_t x1, std::uint16_t y1,

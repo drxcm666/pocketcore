@@ -5,7 +5,6 @@
 #include "freertos/task.h"
 #include <cstdlib>
 
-
 static constexpr std::uint8_t font_uppercase[26][7] = {
     // A
     {0b01110, 0b10001, 0b10001, 0b11111, 0b10001, 0b10001, 0b10001},
@@ -85,6 +84,85 @@ static constexpr std::uint8_t font_uppercase[26][7] = {
     // Z
     {0b11111, 0b00001, 0b00010, 0b00100, 0b01000, 0b10000, 0b11111}};
 
+static constexpr std::uint8_t font_lowercase[26][7] = {
+    // a
+    {0b00000, 0b00000, 0b01110, 0b00001, 0b01111, 0b10001, 0b01111},
+
+    // b
+    {0b10000, 0b10000, 0b11110, 0b10001, 0b10001, 0b10001, 0b11110},
+
+    // c
+    {0b00000, 0b00000, 0b01110, 0b10000, 0b10000, 0b10000, 0b01110},
+
+    // d
+    {0b00001, 0b00001, 0b01111, 0b10001, 0b10001, 0b10001, 0b01111},
+
+    // e
+    {0b00000, 0b00000, 0b01110, 0b10001, 0b11111, 0b10000, 0b01110},
+
+    // f
+    {0b00110, 0b01000, 0b11110, 0b01000, 0b01000, 0b01000, 0b01000},
+
+    // g
+    {0b00000, 0b01111, 0b10001, 0b10001, 0b01111, 0b00001, 0b01110},
+
+    // h
+    {0b10000, 0b10000, 0b11110, 0b10001, 0b10001, 0b10001, 0b10001},
+
+    // i
+    {0b00100, 0b00000, 0b01100, 0b00100, 0b00100, 0b00100, 0b01110},
+
+    // j
+    {0b00010, 0b00000, 0b00010, 0b00010, 0b00010, 0b10010, 0b01100},
+
+    // k
+    {0b10000, 0b10000, 0b10100, 0b11000, 0b11000, 0b10100, 0b10010},
+
+    // l
+    {0b01100, 0b00100, 0b00100, 0b00100, 0b00100, 0b00100, 0b01110},
+
+    // m
+    {0b00000, 0b00000, 0b11010, 0b10101, 0b10101, 0b10101, 0b10101},
+
+    // n
+    {0b00000, 0b00000, 0b11110, 0b10001, 0b10001, 0b10001, 0b10001},
+
+    // o
+    {0b00000, 0b00000, 0b01110, 0b10001, 0b10001, 0b10001, 0b01110},
+
+    // p
+    {0b00000, 0b11110, 0b10001, 0b10001, 0b11110, 0b10000, 0b10000},
+
+    // q
+    {0b00000, 0b01111, 0b10001, 0b10001, 0b01111, 0b00001, 0b00001},
+
+    // r
+    {0b00000, 0b00000, 0b10110, 0b11001, 0b10000, 0b10000, 0b10000},
+
+    // s
+    {0b00000, 0b00000, 0b01111, 0b10000, 0b01110, 0b00001, 0b11110},
+
+    // t
+    {0b01000, 0b01000, 0b11100, 0b01000, 0b01000, 0b01000, 0b00110},
+
+    // u
+    {0b00000, 0b00000, 0b10001, 0b10001, 0b10001, 0b10011, 0b01101},
+
+    // v
+    {0b00000, 0b00000, 0b10001, 0b10001, 0b10001, 0b01010, 0b00100},
+
+    // w
+    {0b00000, 0b00000, 0b10001, 0b10001, 0b10101, 0b10101, 0b01010},
+
+    // x
+    {0b00000, 0b00000, 0b10001, 0b01010, 0b00100, 0b01010, 0b10001},
+
+    // y
+    {0b00000, 0b10001, 0b10001, 0b10001, 0b01111, 0b00001, 0b01110},
+
+    // z
+    {0b00000, 0b00000, 0b11111, 0b00010, 0b00100, 0b01000, 0b11111}};
+
 static constexpr std::uint8_t font_digits[10][7] = {
     // 0
     {0b01110, 0b10001, 0b10011, 0b10101, 0b11001, 0b10001, 0b01110},
@@ -123,6 +201,15 @@ static constexpr std::uint8_t glyph_colon[7] = {
     0b00000,
     0b00100,
     0b00100,
+    0b00000};
+
+static constexpr std::uint8_t glyph_minus[7] = {
+    0b00000,
+    0b00000,
+    0b00000,
+    0b01110,
+    0b00000,
+    0b00000,
     0b00000};
 
 static const char *TAG{"PocketCore"};
@@ -410,8 +497,8 @@ void Display::fill_rect(std::uint16_t color,
     }
 }
 
-void Display::draw_letter(std::uint16_t color,
-                          int x, int y, std::uint8_t scale, const std::uint8_t *bitmap)
+void Display::draw_letter(std::uint16_t color, int x, int y,
+                          std::uint8_t scale, const std::uint8_t *bitmap)
 {
 
     for (int r = 0; r < 7; r++)
@@ -434,6 +521,10 @@ static const std::uint8_t *get_glyph(char ch)
     {
         return font_uppercase[ch - 'A'];
     }
+    else if (ch >= 'a' && ch <= 'z')
+    {
+        return font_lowercase[ch - 'a'];
+    }
     else if (ch >= '0' && ch <= '9')
     {
         return font_digits[ch - '0'];
@@ -442,12 +533,16 @@ static const std::uint8_t *get_glyph(char ch)
     {
         return glyph_colon;
     }
+    else if (ch == '-')
+    {
+        return glyph_minus;
+    }
 
     return nullptr;
 }
 
-void Display::draw_text(std::uint16_t color,
-                        int x, int y, std::uint8_t scale, const std::string &text)
+void Display::draw_text(std::uint16_t color, int x, int y,
+                        std::uint8_t scale, const std::string_view text)
 {
     int cursor_x = x;
     int cursor_y = y;

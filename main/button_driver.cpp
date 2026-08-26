@@ -1,6 +1,9 @@
 #include "button_driver.hpp"
 
 #include "esp_timer.h"
+#include "esp_log.h"
+
+static const char *TAG{"PocketCore"};
 
 void ButtonDriver::init()
 {
