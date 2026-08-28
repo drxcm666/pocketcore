@@ -8,6 +8,10 @@
 
 #include "display.hpp"
 #include "button_driver.hpp"
+#include "application.hpp"
+#include "test_app.hpp"
+#include "test_app_2.hpp"
+#include "application_manager.hpp"
 
 const char *to_string(Button btn)
 {
@@ -60,12 +64,6 @@ struct MenuParameters
     int text_y = 20;
     int padding = 3;
     int scale = 2;
-};
-
-enum class Screen
-{
-    menu,
-    test,
 };
 
 void move_down(std::size_t &selected_index)
@@ -131,7 +129,7 @@ void draw_default_item(Display &display, const MenuParameters &menu, std::size_t
 void draw_menu(Display &display, const MenuParameters &menu, std::size_t selected_index)
 {
     display.fill_screen(0x0000);
-    
+
     for (std::size_t i = 0; i < menu_size; i++)
     {
         if (i == selected_index)
@@ -180,9 +178,12 @@ extern "C" void app_main()
     draw_startup_screen(display);
     vTaskDelay(pdMS_TO_TICKS(1000));
 
-    Screen current_screen{Screen::menu};
     MenuParameters menu{};
     draw_menu(display, menu, selected_index);
+
+    TestApp test{display};
+    TestApp_2 test_2{display};
+    ApplicationManager manager{};
 
     while (true)
     {
@@ -194,42 +195,53 @@ extern "C" void app_main()
             if (!event.has_value())
                 break;
 
-            if (event->button == Button::down &&
-                event->type == ButtonEventType::press &&
-                current_screen == Screen::menu)
+            if (manager.has_active_app())
             {
-                prev_index = selected_index;
-                move_down(selected_index);
-                ESP_LOGI(TAG, "selected: %zu", selected_index);
+                if (event->button == Button::back &&
+                    event->type == ButtonEventType::press)
+                {
+                    manager.close();
+                    draw_menu(display, menu, selected_index);
+                }
+                else
+                {
+                    manager.process(event.value());
+                }
+            }
+            else
+            {
+                if (event->button == Button::down &&
+                    event->type == ButtonEventType::press)
+                {
+                    prev_index = selected_index;
+                    move_down(selected_index);
+                    ESP_LOGI(TAG, "selected: %zu", selected_index);
 
-                draw_default_item(display, menu, prev_index);
-                draw_selected_item(display, menu, selected_index);
-            }
-            else if (event->button == Button::up &&
-                     event->type == ButtonEventType::press &&
-                     current_screen == Screen::menu)
-            {
-                prev_index = selected_index;
-                move_up(selected_index);
-                ESP_LOGI(TAG, "selected: %zu", selected_index);
+                    draw_default_item(display, menu, prev_index);
+                    draw_selected_item(display, menu, selected_index);
+                }
+                else if (event->button == Button::up &&
+                         event->type == ButtonEventType::press)
+                {
+                    prev_index = selected_index;
+                    move_up(selected_index);
+                    ESP_LOGI(TAG, "selected: %zu", selected_index);
 
-                draw_default_item(display, menu, prev_index);
-                draw_selected_item(display, menu, selected_index);
-            }
-            else if (event->button == Button::ok &&
-                     event->type == ButtonEventType::press &&
-                     current_screen == Screen::menu)
-            {
-                current_screen = Screen::test;
-                display.fill_screen(0x0000);
-                display.draw_text(0xFFFF, 50, 150, 2, "TEST SCREEN");
-            }
-            else if (event->button == Button::back &&
-                     event->type == ButtonEventType::press &&
-                     current_screen == Screen::test)
-            {
-                current_screen = Screen::menu;
-                draw_menu(display, menu, selected_index);
+                    draw_default_item(display, menu, prev_index);
+                    draw_selected_item(display, menu, selected_index);
+                }
+                else if (event->button == Button::ok &&
+                         event->type == ButtonEventType::press &&
+                         selected_index == 0)
+                {
+                    manager.open(test);
+                }
+                else if (event->button == Button::ok &&
+                         event->type == ButtonEventType::press &&
+                         selected_index == 1)
+                {
+                    manager.open(test_2);
+                }
             }
         }
 
