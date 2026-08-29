@@ -23,7 +23,6 @@
     "board/esp32s3-builtin.cfg"
   ],
   "idf.portWin": "COM9",
-  "idf.currentSetup": "D:\\esp\\v6.0.2\\esp-idf",
   "idf.customExtraVars": {
     "IDF_TARGET": "esp32s3"
   },
@@ -35,5 +34,6 @@
   ],
   "cSpell.words": [
     "LOGI"
-  ]
+  ],
+  "idf.currentSetup": "/home/drxcm666/.espressif/v6.0.2/esp-idf"
 }
