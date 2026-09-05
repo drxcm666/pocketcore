@@ -17,6 +17,14 @@ void ApplicationManager::process(const ButtonEvent &event)
     }
 }
 
+void ApplicationManager::update()
+{
+    if (active_app_)
+    {
+        active_app_->update();
+    }
+}
+
 void ApplicationManager::close()
 {
     if (active_app_)

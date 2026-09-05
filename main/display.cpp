@@ -221,6 +221,16 @@ static constexpr std::uint8_t glyph_dot[7] = {
     0b00000,
     0b00100};
 
+static constexpr std::uint8_t glyph_greater_than[7] = {
+    0b10000,
+    0b01000,
+    0b00100,
+    0b00010,
+    0b00100,
+    0b01000,
+    0b10000};
+
+
 static const char *TAG{"PocketCore"};
 
 static constexpr int width = 240;
@@ -552,6 +562,10 @@ static const std::uint8_t *get_glyph(char ch)
     else if (ch == '.')
     {
         return glyph_dot;
+    }
+    else if (ch == '>')
+    {
+        return glyph_greater_than;
     }
 
     return nullptr;

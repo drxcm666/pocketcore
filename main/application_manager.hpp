@@ -10,6 +10,7 @@ private:
 public:
     void open(Application &app);
     void process(const ButtonEvent &event);
+    void update();
     void close();
     bool has_active_app() const { return active_app_ != nullptr; }
 };

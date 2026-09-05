@@ -12,6 +12,7 @@
 #include "test_app.hpp"
 #include "test_app_2.hpp"
 #include "application_manager.hpp"
+#include "gpio_app.hpp"
 
 const char *to_string(Button btn)
 {
@@ -181,8 +182,9 @@ extern "C" void app_main()
     MenuParameters menu{};
     draw_menu(display, menu, selected_index);
 
-    TestApp test{display};
-    TestApp_2 test_2{display};
+    // TestApp test{display};
+    // TestApp_2 test_2{display};
+    GpioApp gpio_app{display};
     ApplicationManager manager{};
 
     while (true)
@@ -234,16 +236,19 @@ extern "C" void app_main()
                          event->type == ButtonEventType::press &&
                          selected_index == 0)
                 {
-                    manager.open(test);
+                    // manager.open(test);
+                    manager.open(gpio_app);
                 }
                 else if (event->button == Button::ok &&
                          event->type == ButtonEventType::press &&
                          selected_index == 1)
                 {
-                    manager.open(test_2);
+                    // manager.open(test_2);
                 }
             }
         }
+
+        manager.update();
 
         vTaskDelay(pdMS_TO_TICKS(10));
     }
