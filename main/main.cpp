@@ -13,6 +13,7 @@
 #include "test_app_2.hpp"
 #include "application_manager.hpp"
 #include "gpio_app.hpp"
+#include "i2c_scanner_app.hpp"
 
 const char *to_string(Button btn)
 {
@@ -182,9 +183,8 @@ extern "C" void app_main()
     MenuParameters menu{};
     draw_menu(display, menu, selected_index);
 
-    // TestApp test{display};
-    // TestApp_2 test_2{display};
     GpioApp gpio_app{display};
+    I2cScannerApp i2c_app{display};
     ApplicationManager manager{};
 
     while (true)
@@ -245,6 +245,13 @@ extern "C" void app_main()
                 {
                     // manager.open(test_2);
                 }
+                else if (event->button == Button::ok &&
+                         event->type == ButtonEventType::press &&
+                         selected_index == 2)
+                {
+                    manager.open(i2c_app);
+                }
+                
             }
         }
 
