@@ -1,20 +1,19 @@
+#include "i2c_scanner_app.hpp"
+#include "bme280_driver.hpp"
+
 #include "esp_log.h"
 
 #include <string>
 #include <format>
 
-#include "i2c_scanner_app.hpp"
-
 static const char *TAG{"PocketCore"};
 
-I2cScannerApp::I2cScannerApp(Display &display) : display_{display} 
-{
-    address_count_ = 0;
-    addresses_ = {};
-}
+I2cScannerApp::I2cScannerApp(Display &display) : display_{display} {}
 
 void I2cScannerApp::check_i2c_bus()
 {
+    address_count_ = 0;
+
     esp_err_t err;
     for (int i = 0x08; i <= 0x77; i++)
     {
@@ -50,12 +49,17 @@ void I2cScannerApp::enter()
     if (err == ESP_OK)
     {
         ESP_LOGI(TAG, "I2C bus initialized");
-        check_i2c_bus(); 
+        check_i2c_bus();
     }
     else
     {
         ESP_LOGE(TAG, "I2C initialization failed: %s", esp_err_to_name(err));
+        return;
     }
+
+    Bme280Driver bme280{i2c_bus_handle_};
+    bme280.init();
+    bme280.read();
 }
 
 void I2cScannerApp::handle_event(const ButtonEvent &event)
@@ -83,16 +87,30 @@ void I2cScannerApp::update()
 
 void I2cScannerApp::exit()
 {
+    esp_err_t err;
     if (i2c_bus_handle_ != nullptr)
     {
-        esp_err_t err = i2c_del_master_bus(i2c_bus_handle_);
-        if (err != ESP_OK)
+        if (i2c_dev_handle_ != nullptr)
         {
-            ESP_LOGE(TAG, "Failed to remove I2C bus");
-        }
-        else
-        {
-            i2c_bus_handle_ = nullptr;
+            err = i2c_master_bus_rm_device(i2c_dev_handle_);
+            if (err != ESP_OK)
+            {
+                ESP_LOGE(TAG, "Failed to remove I2C device: %s", esp_err_to_name(err));
+            }
+            else
+            {
+                i2c_dev_handle_ = nullptr;
+
+                err = i2c_del_master_bus(i2c_bus_handle_);
+                if (err != ESP_OK)
+                {
+                    ESP_LOGE(TAG, "Failed to remove I2C bus: %s", esp_err_to_name(err));
+                }
+                else
+                {
+                    i2c_bus_handle_ = nullptr;
+                }
+            }
         }
     }
 

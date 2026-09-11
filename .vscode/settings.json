@@ -33,7 +33,8 @@
     "--compile-commands-dir=d:\\programming\\cpp_adept\\pocketcore\\build"
   ],
   "cSpell.words": [
-    "LOGI"
+    "LOGI",
+    "xlsb"
   ],
   "idf.currentSetup": "D:\\esp\\v6.0.2\\esp-idf"
 }

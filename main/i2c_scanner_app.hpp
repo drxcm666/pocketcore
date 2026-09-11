@@ -2,20 +2,21 @@
 
 #include "driver/i2c_master.h"
 
-#include <array>
-#include <cstdint>
-
 #include "application.hpp"
 #include "button_driver.hpp"
 #include "display.hpp"
+
+#include <array>
+#include <cstdint>
 
 class I2cScannerApp : public Application
 {
 private:
     i2c_master_bus_handle_t i2c_bus_handle_{nullptr};
+    i2c_master_dev_handle_t i2c_dev_handle_{nullptr};
     Display &display_;
 
-    std::array<int, 112> addresses_;
+    std::array<int, 112> addresses_{};
     std::size_t address_count_{0};
 
     int text_x_ = 15;
