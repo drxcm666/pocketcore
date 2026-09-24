@@ -22,7 +22,6 @@
   "idf.openOcdConfigs": [
     "board/esp32s3-builtin.cfg"
   ],
-  "idf.portWin": "COM9",
   "idf.customExtraVars": {
     "IDF_TARGET": "esp32s3"
   },
@@ -36,5 +35,6 @@
     "LOGI",
     "xlsb"
   ],
-  "idf.currentSetup": "D:\\esp\\v6.0.2\\esp-idf"
+  "idf.currentSetup": "D:\\esp\\v6.0.2\\esp-idf",
+  "idf.port": "COM9"
 }

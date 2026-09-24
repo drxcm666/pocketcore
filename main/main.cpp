@@ -2,9 +2,11 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "driver/gpio.h"
+#include "driver/uart.h"
 
 #include <string_view>
 #include <array>
+#include <algorithm>
 
 #include "display.hpp"
 #include "button_driver.hpp"
@@ -14,6 +16,8 @@
 #include "application_manager.hpp"
 #include "gpio_app.hpp"
 #include "i2c_scanner_app.hpp"
+#include "uart_driver.hpp"
+#include "uart_app.hpp"
 
 const char *to_string(Button btn)
 {
@@ -185,7 +189,16 @@ extern "C" void app_main()
 
     GpioApp gpio_app{display};
     I2cScannerApp i2c_app{display};
+    UartDriver uart_driver{115200, UART_NUM_1, GPIO_NUM_17, GPIO_NUM_18,
+                           UART_DATA_8_BITS, UART_PARITY_DISABLE, UART_STOP_BITS_1};
+    uart_driver.init();
+    UartTerminalApp uart_app{display, uart_driver};
+
     ApplicationManager manager{};
+
+    // std::array<std::uint8_t, 64> line_buffer{};
+
+    // int line_idx{0};
 
     while (true)
     {
@@ -243,7 +256,7 @@ extern "C" void app_main()
                          event->type == ButtonEventType::press &&
                          selected_index == 1)
                 {
-                    // manager.open(test_2);
+                    manager.open(uart_app);
                 }
                 else if (event->button == Button::ok &&
                          event->type == ButtonEventType::press &&
@@ -251,7 +264,6 @@ extern "C" void app_main()
                 {
                     manager.open(i2c_app);
                 }
-                
             }
         }
 
