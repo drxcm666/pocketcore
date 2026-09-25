@@ -34,6 +34,8 @@ private:
 
     ViewMode view_mode_{ViewMode::text};
 
+    void save_line();
+
 public:
     UartTerminalApp(Display &display, UartDriver &uart);
     void enter() override;

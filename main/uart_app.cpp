@@ -1,4 +1,5 @@
 #include "uart_app.hpp"
+#include "scoped_file.hpp"
 
 #include "esp_log.h"
 
@@ -145,6 +146,27 @@ void UartTerminalApp::render()
     }
 }
 
+void UartTerminalApp::save_line()
+{
+    ScopedFile file{"/sdcard/uart.log", "a"};
+    if (!file.is_open())
+    {
+        ESP_LOGE(TAG, "Failed to open UART log");
+        return;
+    }
+    std::size_t fp = fwrite(line_buffer_.data(), 1, line_idx_, file.get());
+
+    if (fp != line_idx_)
+    {
+        ESP_LOGE(TAG, "Write failed");
+        return;
+    }
+
+    int ch = fputc('\n', file.get());
+    if (ch == EOF)
+        ESP_LOGE(TAG, "Failed to write \\n");
+}
+
 void UartTerminalApp::update()
 {
     int rx_bytes = uart_.read(std::span<uint8_t>{rx_buffer_.data(), rx_buffer_.size()});
@@ -165,6 +187,9 @@ void UartTerminalApp::update()
         if (rx_buffer_[i] == '\r')
         {
             display_lines_.push_back({line_buffer_, line_idx_});
+
+            save_line();
+
             if (display_lines_.size() > max_text_lines_)
             {
                 display_lines_.pop_front();
@@ -185,6 +210,9 @@ void UartTerminalApp::update()
             else
             {
                 display_lines_.push_back({line_buffer_, line_idx_});
+
+                save_line();
+
                 if (display_lines_.size() > max_text_lines_)
                 {
                     display_lines_.pop_front();
@@ -207,6 +235,9 @@ void UartTerminalApp::update()
             else
             {
                 display_lines_.push_back({line_buffer_, line_idx_});
+
+                save_line();
+
                 if (display_lines_.size() > max_text_lines_)
                 {
                     display_lines_.pop_front();
